@@ -5,9 +5,9 @@ using System.Windows.Controls;
 
 namespace Slide.Controls
 {
-    public class ExplorerTreeView : TreeView
+    public class ExplorerTreeViewObs : TreeView
     {
-        public ExplorerTreeView()
+        public ExplorerTreeViewObs()
         {
             this.AddHandler(TreeViewItem.ExpandedEvent, new RoutedEventHandler(this.OnItemExpanded));
             this.SelectedItemChanged += (s, e) => {
@@ -130,7 +130,7 @@ namespace Slide.Controls
             set { SetValue(SelectedPathProperty, value); }
         }
 
-        public static readonly DependencyProperty SelectedPathProperty = DependencyProperty.Register(nameof(SelectedPath), typeof(string), typeof(ExplorerTreeView));
+        public static readonly DependencyProperty SelectedPathProperty = DependencyProperty.Register(nameof(SelectedPath), typeof(string), typeof(ExplorerTreeViewObs));
 
         private bool IsSelectionUpdateRequired(string newPath)
         {
