@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using System.Reactive.Linq;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -16,18 +12,23 @@ namespace Slide.ViewModels
     {
         private readonly DirectoryModel directoryModel;
 
-        public ReactivePropertySlim<string> DisplayText { get; }
+        public ReadOnlyReactivePropertySlim<string> DisplayText { get; }
 
         public ReadOnlyReactiveCollection<ExplorerTreeViewItemViewModel> Children { get; }
+
+        public ReactivePropertySlim<bool> IsSelected { get; }
 
         public ExplorerTreeViewItemViewModel(DirectoryModel directoryModel)
         {
             this.directoryModel = directoryModel;
-            this.DisplayText = this.directoryModel.Name.ToReactivePropertySlimAsSynchronized(x => x.Value).AddTo(this.disposables);
-            this.Children = this.directoryModel.Children.ToReadOnlyReactiveCollection(x => new ExplorerTreeViewItemViewModel(x));
+            this.DisplayText = this.directoryModel.Name.Select(x => x).ToReadOnlyReactivePropertySlim<string>();
+            this.Children = this.directoryModel.Children.ToReadOnlyReactiveCollection(x => new ExplorerTreeViewItemViewModel(x)).AddTo(this.disposables);
+            this.IsSelected = new ReactivePropertySlim<bool>().AddTo(this.disposables);
         }
 
-        public void UpdateChildren() => this.directoryModel.UpdateChildren();
+        public string? DirectoryFullName => this.directoryModel.DirectoryInfo.Value?.FullName;
+
+        public void UpdateChildren() => this.directoryModel.InitializeChildren();
 
         #region IDisposable
         private readonly System.Reactive.Disposables.CompositeDisposable disposables = new();

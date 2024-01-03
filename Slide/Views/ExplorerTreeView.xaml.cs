@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Slide.Controls
+namespace Slide.Views
 {
     /// <summary>
     /// ExplorerTreeView.xaml の相互作用ロジック
