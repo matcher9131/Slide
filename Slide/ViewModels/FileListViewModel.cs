@@ -5,9 +5,12 @@ using Slide.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace Slide.ViewModels
 {
@@ -15,14 +18,17 @@ namespace Slide.ViewModels
     {
         private readonly SelectedItemModel selectedItemModel;
 
-        public ReactiveCommand<object> SelectedItemChangedCommand { get; }
+        // ItemsをクリアするためのSubject
+        // private readonly Subject<Unit> clearSubject = new();
+
+        public ReactiveCommand<SelectionChangedEventArgs> SelectedItemChangedCommand { get; }
 
         public ReadOnlyReactiveCollection<FileListViewItemViewModel> Items { get; }
 
         public FileListViewModel(SelectedItemModel selectedItemModel)
         {
             this.selectedItemModel = selectedItemModel;
-            this.SelectedItemChangedCommand = new ReactiveCommand<object>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
+            this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
             this.Items = this.selectedItemModel.SelectedDirectory.SelectMany(selectedDirectory => selectedDirectory == null
                 ? Enumerable.Empty<FileListViewItemViewModel>()
                 : selectedDirectory.EnumerateFiles()
@@ -31,16 +37,12 @@ namespace Slide.ViewModels
                     .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension))
                     .OrderBy(fileInfo => fileInfo.Name, new FilenameComparer())
                     .Select(fileInfo => new FileListViewItemViewModel(new FileModel(fileInfo)))
-                ).ToReadOnlyReactiveCollection();
+                ).ToReadOnlyReactiveCollection(this.selectedItemModel.SelectedDirectory.Select(_ => Unit.Default));
         }
 
-        private void OnSelectedItemChanged(object e)
+        private void OnSelectedItemChanged(SelectionChangedEventArgs e)
         {
-            if (e is FileListViewItemViewModel vm)
-            {
-                this.selectedItemModel.SelectedFile.Value = vm.FileInfo;
-            }
-            // else がいるかも？(e == null)
+            // NOT IMPLEMENTED
         }
 
         #region IDisposable

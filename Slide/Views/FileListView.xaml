@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:interactivity="clr-namespace:Reactive.Bindings.Interactivity;assembly=ReactiveProperty.WPF"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Slide.ViewModels"
              prism:ViewModelLocator.AutoWireViewModel="True"
@@ -25,5 +27,10 @@
                 <TextBlock Text="{Binding DisplayText}" />
             </DataTemplate>
         </ListView.ItemTemplate>
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="SelectionChanged">
+                <interactivity:EventToReactiveCommand Command="{Binding SelectedItemChangedCommand}" />
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
     </ListView> 
 </UserControl>
