@@ -31,7 +31,7 @@ namespace Slide.Views
         {
             var view = (TreeViewItem)e.OriginalSource;
             var viewModel = (ExplorerTreeViewItemViewModel)view.DataContext;
-            viewModel.UpdateChildren();
+            viewModel.InitializeChildren();
         }
     }
 }

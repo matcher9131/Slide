@@ -2,28 +2,28 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:prism="http://prismlibrary.com/"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Slide.Controls"
-             mc:Ignorable="d" 
+             xmlns:vm="clr-namespace:Slide.ViewModels"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:FileListViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <!-- ItemsSource="{Binding Filenames.Value}" -->
-        <ListView
-            SelectionMode="Single"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            KeyboardNavigation.DirectionalNavigation="Cycle"
-        >
-            <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel IsItemsHost="True" Orientation="Vertical" Background="DarkGray" />
-                </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <!-- Bind here -->
-                    <TextBlock />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>  
-    </Grid>
+    <ListView
+        ItemsSource="{Binding Items}"
+        SelectionMode="Single"
+        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+        KeyboardNavigation.DirectionalNavigation="Cycle"
+    >
+        <ListView.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel IsItemsHost="True" Orientation="Vertical" Background="DarkGray" />
+            </ItemsPanelTemplate>
+        </ListView.ItemsPanel>
+        <ListView.ItemTemplate>
+            <DataTemplate DataType="{x:Type vm:FileListViewItemViewModel}">
+                <TextBlock Text="{Binding DisplayText}" />
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView> 
 </UserControl>

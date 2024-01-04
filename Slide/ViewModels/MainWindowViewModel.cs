@@ -9,7 +9,7 @@ namespace Slide.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        static readonly string[] Extensions = new string[] { ".bmp", ".png", ".jpg", ".jpeg", ".webp", ".gif" };
+        
 
         public MainWindowViewModel()
         {

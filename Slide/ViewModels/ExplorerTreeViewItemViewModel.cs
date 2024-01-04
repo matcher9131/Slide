@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using Prism.Mvvm;
@@ -21,14 +22,14 @@ namespace Slide.ViewModels
         public ExplorerTreeViewItemViewModel(DirectoryModel directoryModel)
         {
             this.directoryModel = directoryModel;
-            this.DisplayText = this.directoryModel.Name.Select(x => x).ToReadOnlyReactivePropertySlim<string>();
-            this.Children = this.directoryModel.Children.ToReadOnlyReactiveCollection(x => new ExplorerTreeViewItemViewModel(x)).AddTo(this.disposables);
+            this.DisplayText = this.directoryModel.Name.Select(x => x).ToReadOnlyReactivePropertySlim<string>().AddTo(this.disposables);
+            this.Children = this.directoryModel.Children.ToReadOnlyReactiveCollection(child => new ExplorerTreeViewItemViewModel(child)).AddTo(this.disposables);
             this.IsSelected = new ReactivePropertySlim<bool>().AddTo(this.disposables);
         }
 
-        public string? DirectoryFullName => this.directoryModel.DirectoryInfo.Value?.FullName;
+        public DirectoryInfo? DirectoryInfo => this.directoryModel.DirectoryInfo.Value;
 
-        public void UpdateChildren() => this.directoryModel.InitializeChildren();
+        public void InitializeChildren() => this.directoryModel.InitializeChildren();
 
         #region IDisposable
         private readonly System.Reactive.Disposables.CompositeDisposable disposables = new();
