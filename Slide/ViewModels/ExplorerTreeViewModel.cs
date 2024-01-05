@@ -33,6 +33,7 @@ namespace Slide.ViewModels
         {
             if (e is ExplorerTreeViewItemViewModel vm)
             {
+                this.selectedItemModel.SelectedFile.Value = null;
                 this.selectedItemModel.SelectedDirectory.Value = vm.DirectoryInfo;
             }
         }

@@ -4,6 +4,7 @@ using Reactive.Bindings.Extensions;
 using Slide.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -29,20 +30,31 @@ namespace Slide.ViewModels
         {
             this.selectedItemModel = selectedItemModel;
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
-            this.Items = this.selectedItemModel.SelectedDirectory.SelectMany(selectedDirectory => selectedDirectory == null
-                ? Enumerable.Empty<FileListViewItemViewModel>()
-                : selectedDirectory.EnumerateFiles()
+            this.Items = this.selectedItemModel.SelectedDirectory.SelectMany(selectedDirectory =>
+            {
+                if (selectedDirectory == null) return Enumerable.Empty<FileListViewItemViewModel>();
+                try
+                {
+                    return selectedDirectory.EnumerateFiles()
                     .AsParallel()
                     .AsOrdered()
                     .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension))
                     .OrderBy(fileInfo => fileInfo.Name, new FilenameComparer())
-                    .Select(fileInfo => new FileListViewItemViewModel(new FileModel(fileInfo)))
-                ).ToReadOnlyReactiveCollection(this.selectedItemModel.SelectedDirectory.Select(_ => Unit.Default));
+                    .Select(fileInfo => new FileListViewItemViewModel(new FileModel(fileInfo)));
+                }
+                catch (IOException)
+                {
+                    return Enumerable.Empty<FileListViewItemViewModel>();
+                }
+            }).ToReadOnlyReactiveCollection(this.selectedItemModel.SelectedDirectory.Select(_ => Unit.Default));
         }
 
         private void OnSelectedItemChanged(SelectionChangedEventArgs e)
         {
-            // NOT IMPLEMENTED
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is FileListViewItemViewModel vm)
+            {
+                this.selectedItemModel.SelectedFile.Value = vm.FileInfo;
+            }
         }
 
         #region IDisposable

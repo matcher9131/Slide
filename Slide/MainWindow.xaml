@@ -30,13 +30,8 @@
                 </Grid.ColumnDefinitions>
                 <v:FileListView />
                 <GridSplitter VerticalAlignment="Stretch" Width="5"/>
-                <DockPanel Grid.Column="1" Background="DarkGray">
-                    <Image />
-                </DockPanel>
+                <v:ImagePanel Grid.Column="1" />
             </Grid>
-            
-            
-
         </Grid>
     </DockPanel>
 </Window>
