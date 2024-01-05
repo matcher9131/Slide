@@ -13,9 +13,21 @@
              >
 
     <TreeView ItemsSource="{Binding Children}" Background="DarkGray">
+        <TreeView.Resources>
+            <ContextMenu x:Key="treeViewContextMenu">
+                <MenuItem Header="エクスプローラーでフォルダを開く(_O)" Command="{Binding OpenExplorerCommand}"/>
+            </ContextMenu>
+        </TreeView.Resources>
         <TreeView.ItemTemplate>
             <HierarchicalDataTemplate DataType="{x:Type vm:ExplorerTreeViewItemViewModel}" ItemsSource="{Binding Children}">
-                <TextBlock Text="{Binding DisplayText.Value}" />
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="ContextMenu" Value="{Binding Source={StaticResource treeViewContextMenu}}" />
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="{Binding DisplayText.Value}" />
+                </StackPanel>
             </HierarchicalDataTemplate>
         </TreeView.ItemTemplate>
         <i:Interaction.Triggers>

@@ -9,19 +9,9 @@ namespace Slide.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        
-
         public MainWindowViewModel()
         {
             
-        }
-
-        
-
-        public ReactiveCommand OpenExplorerCommand { get; init; }
-        private void OpenExplorer()
-        {
-            // System.Diagnostics.Process.Start("explorer.exe", this.SelectedPath.Value!);
         }
                 
         public event PropertyChangedEventHandler? PropertyChanged;
