@@ -13,18 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Slide
+namespace Slide.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// ImagePanel.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ImagePanel : UserControl
     {
-        public MainWindow()
+        public ImagePanel()
         {
             InitializeComponent();
-
-            this.Loaded += (sender, e) => { this.WindowState = WindowState.Maximized; };
         }
     }
 }
