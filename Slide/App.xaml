@@ -1,10 +1,24 @@
 ﻿<prism:PrismApplication x:Class="Slide.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Slide"
+             xmlns:converter="clr-namespace:Slide.Converter"
              xmlns:prism="http://prismlibrary.com/"
              >
     <Application.Resources>
-        
+        <ControlTemplate x:Key="favoriteButtonStyle" TargetType="Button">
+            <Path Fill="{TemplateBinding Background}" Stretch="Uniform">
+                <Path.Data>
+                    <PathGeometry FillRule="Nonzero">
+                        <PathFigure StartPoint="100, 0" IsClosed="True">
+                            <LineSegment Point="158.8, 180.9" />
+                            <LineSegment Point="4.9, 69.1" />
+                            <LineSegment Point="195.1, 69.1" />
+                            <LineSegment Point="41.2, 180.9" />
+                        </PathFigure>
+                    </PathGeometry>
+                </Path.Data>
+            </Path>
+        </ControlTemplate>
+        <converter:FavoriteLevelConverter x:Key="favoriteLevelConverter" />
     </Application.Resources>
 </prism:PrismApplication>

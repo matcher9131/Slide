@@ -18,11 +18,15 @@ namespace Slide.Models
 
         public ReadOnlyReactivePropertySlim<string> FullName { get; }
 
+        public ReactivePropertySlim<int> FavoriteLevel { get; }
+
         public FileModel(FileInfo fileInfo)
         {
             this.FileInfo = new ReactivePropertySlim<FileInfo>(fileInfo);
             this.Name = this.FileInfo.Select(fileInfo => fileInfo.Name).ToReadOnlyReactivePropertySlim<string>();
             this.FullName = this.FileInfo.Select(fileInfo => fileInfo.FullName).ToReadOnlyReactivePropertySlim<string>();
+            // temporary
+            this.FavoriteLevel = new();
         }
     }
 }
