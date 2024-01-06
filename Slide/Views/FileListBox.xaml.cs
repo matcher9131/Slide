@@ -18,9 +18,9 @@ namespace Slide.Views
     /// <summary>
     /// FileListView.xaml の相互作用ロジック
     /// </summary>
-    public partial class FileListView : UserControl
+    public partial class FileListBox : UserControl
     {
-        public FileListView()
+        public FileListBox()
         {
             InitializeComponent();
         }

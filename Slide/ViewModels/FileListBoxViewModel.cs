@@ -15,7 +15,7 @@ using System.Windows.Controls;
 
 namespace Slide.ViewModels
 {
-    public class FileListViewModel : BindableBase, IDisposable
+    public class FileListBoxViewModel : BindableBase, IDisposable
     {
         private readonly SelectedItemModel selectedItemModel;
 
@@ -24,15 +24,15 @@ namespace Slide.ViewModels
 
         public ReactiveCommand<SelectionChangedEventArgs> SelectedItemChangedCommand { get; }
 
-        public ReadOnlyReactiveCollection<FileListViewItemViewModel> Items { get; }
+        public ReadOnlyReactiveCollection<FileListBoxItemViewModel> Items { get; }
 
-        public FileListViewModel(SelectedItemModel selectedItemModel)
+        public FileListBoxViewModel(SelectedItemModel selectedItemModel)
         {
             this.selectedItemModel = selectedItemModel;
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
             this.Items = this.selectedItemModel.SelectedDirectory.SelectMany(selectedDirectory =>
             {
-                if (selectedDirectory == null) return Enumerable.Empty<FileListViewItemViewModel>();
+                if (selectedDirectory == null) return Enumerable.Empty<FileListBoxItemViewModel>();
                 try
                 {
                     return selectedDirectory.EnumerateFiles()
@@ -40,18 +40,18 @@ namespace Slide.ViewModels
                     .AsOrdered()
                     .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension))
                     .OrderBy(fileInfo => fileInfo.Name, new FilenameComparer())
-                    .Select(fileInfo => new FileListViewItemViewModel(new FileModel(fileInfo)));
+                    .Select(fileInfo => new FileListBoxItemViewModel(new FileModel(fileInfo)));
                 }
                 catch (IOException)
                 {
-                    return Enumerable.Empty<FileListViewItemViewModel>();
+                    return Enumerable.Empty<FileListBoxItemViewModel>();
                 }
             }).ToReadOnlyReactiveCollection(this.selectedItemModel.SelectedDirectory.Select(_ => Unit.Default));
         }
 
         private void OnSelectedItemChanged(SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 0 && e.AddedItems[0] is FileListViewItemViewModel vm)
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is FileListBoxItemViewModel vm)
             {
                 this.selectedItemModel.SelectedFile.Value = vm.FileInfo;
             }

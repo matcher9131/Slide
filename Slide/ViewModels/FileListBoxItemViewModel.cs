@@ -12,7 +12,7 @@ using System.IO;
 
 namespace Slide.ViewModels
 {
-    public class FileListViewItemViewModel : BindableBase, IDisposable
+    public class FileListBoxItemViewModel : BindableBase, IDisposable
     {
         private readonly FileModel fileModel;
 
@@ -24,7 +24,7 @@ namespace Slide.ViewModels
 
         public ReactiveCommand IncrementFavoriteLevelCommand { get; }
 
-        public FileListViewItemViewModel(FileModel fileModel)
+        public FileListBoxItemViewModel(FileModel fileModel)
         {
             this.fileModel = fileModel;
             this.DisplayText = this.fileModel.Name.Select(x => x).ToReadOnlyReactivePropertySlim<string>().AddTo(this.disposables);
