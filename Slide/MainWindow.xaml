@@ -23,7 +23,10 @@
                     <ColumnDefinition Width="100"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <v:FileListBox Grid.Column="0" />
+                <DockPanel Grid.Column="0">
+                    <v:FavoriteLevelFilter DockPanel.Dock="Top" />
+                    <v:FileListBox />
+                </DockPanel>
                 <GridSplitter VerticalAlignment="Stretch" Width="5"/>
                 <v:ImagePanel Grid.Column="1" />
             </Grid>

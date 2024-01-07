@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
-using System.Windows.Navigation;
+using System.Windows.Media;
 
 namespace Slide.Converter
 {
-    public class FavoriteLevelConverter : IValueConverter
+    public class BrushConverter : IValueConverter
     {
-        // Level -> Color
+        // Color -> Brush
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            int? level = (int?)value;
-            return level switch
-            {
-                1 => "Yellow",
-                2 => "DeepPink",
-                _ => "White"
-            };
+            Color color = (Color)value;
+            return new SolidColorBrush(color);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

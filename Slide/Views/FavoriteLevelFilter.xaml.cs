@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Slide.Views
 {
     /// <summary>
-    /// FavoriteButton.xaml の相互作用ロジック
+    /// FavoriteLevelFilter.xaml の相互作用ロジック
     /// </summary>
-    public partial class FavoriteButton : UserControl
+    public partial class FavoriteLevelFilter : UserControl
     {
-        public FavoriteButton()
+        public FavoriteLevelFilter()
         {
             InitializeComponent();
         }

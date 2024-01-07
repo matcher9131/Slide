@@ -20,5 +20,6 @@
             </Path>
         </ControlTemplate>
         <converter:FavoriteLevelConverter x:Key="favoriteLevelConverter" />
+        <converter:BrushConverter x:Key="brushConverter" />
     </Application.Resources>
 </prism:PrismApplication>
