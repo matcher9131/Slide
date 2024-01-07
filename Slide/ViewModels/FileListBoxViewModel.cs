@@ -1,6 +1,7 @@
 ﻿using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using Reactive.Bindings.Helpers;
 using Slide.Models;
 using System;
 using System.Collections.Generic;
@@ -18,35 +19,44 @@ namespace Slide.ViewModels
     public class FileListBoxViewModel : BindableBase, IDisposable
     {
         private readonly SelectedItemModel selectedItemModel;
+        private readonly FavoriteLevel favoriteLevel;
 
         // ItemsをクリアするためのSubject
-        // private readonly Subject<Unit> clearSubject = new();
+        private readonly Subject<Unit> clearSubject = new();
 
         public ReactiveCommand<SelectionChangedEventArgs> SelectedItemChangedCommand { get; }
 
         public ReadOnlyReactiveCollection<FileListBoxItemViewModel> Items { get; }
 
-        public FileListBoxViewModel(SelectedItemModel selectedItemModel)
+        public FileListBoxViewModel(SelectedItemModel selectedItemModel, FavoriteLevel favoriteLevel)
         {
             this.selectedItemModel = selectedItemModel;
+            this.favoriteLevel = favoriteLevel;
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
-            this.Items = this.selectedItemModel.SelectedDirectory.SelectMany(selectedDirectory =>
-            {
-                if (selectedDirectory == null) return Enumerable.Empty<FileListBoxItemViewModel>();
-                try
+            this.Items = Observable.CombineLatest(
+                this.selectedItemModel.SelectedDirectory,
+                this.favoriteLevel.SelectedLevel,
+                Tuple.Create
+            ).Do(_ => this.clearSubject.OnNext(Unit.Default)).SelectMany(tuple =>
                 {
-                    return selectedDirectory.EnumerateFiles()
-                    .AsParallel()
-                    .AsOrdered()
-                    .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension))
-                    .OrderBy(fileInfo => fileInfo.Name, new FilenameComparer())
-                    .Select(fileInfo => new FileListBoxItemViewModel(new FileModel(fileInfo)));
+                    var (selectedDirectory, favoriteLevel) = tuple;
+                    if (selectedDirectory == null) return Enumerable.Empty<FileListBoxItemViewModel>();
+                    try
+                    {
+                        return selectedDirectory.EnumerateFiles()
+                        .AsParallel()
+                        .AsOrdered()
+                        .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension))
+                        .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
+                        .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
+                        .OrderBy(vm => vm.FileInfo.Name, new FilenameComparer());
+                    }
+                    catch (IOException)
+                    {
+                        return Enumerable.Empty<FileListBoxItemViewModel>();
+                    }
                 }
-                catch (IOException)
-                {
-                    return Enumerable.Empty<FileListBoxItemViewModel>();
-                }
-            }).ToReadOnlyReactiveCollection(this.selectedItemModel.SelectedDirectory.Select(_ => Unit.Default));
+            ).ToReadOnlyReactiveCollection(this.clearSubject);
         }
 
         private void OnSelectedItemChanged(SelectionChangedEventArgs e)

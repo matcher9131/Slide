@@ -19,7 +19,7 @@ namespace Slide.Converter
             return level switch
             {
                 1 => "Yellow",
-                2 => "DeepPink",
+                2 => "HotPink",
                 _ => "White"
             };
         }
