@@ -14,6 +14,7 @@ namespace Slide.Static
         private readonly static Color[] colors = new Color[]
         {
             Colors.White,
+            Colors.Lime,
             Colors.Yellow,
             Colors.DeepPink
         };

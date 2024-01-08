@@ -15,43 +15,14 @@ namespace Slide.ViewModels
 {
     public class FavoriteLevelFilterViewModel : BindableBase, IDisposable
     {
-        private readonly FavoriteLevel favoriteLevel;
+        private readonly SelectedFavoriteLevel selectedFavoriteLevel;
 
-        public ReadOnlyReactivePropertySlim<Color> Level0ButtonColor { get; }
+        public FavoriteLevelFilterButtonViewModel[] ButtonViewModels { get; }
 
-        public ReadOnlyReactivePropertySlim<Color> Level1ButtonColor { get; }
-
-        public ReadOnlyReactivePropertySlim<Color> Level2ButtonColor { get; }
-
-        public ReactiveCommand Level0ButtonClickCommand { get; }
-
-        public ReactiveCommand Level1ButtonClickCommand { get; }
-
-        public ReactiveCommand Level2ButtonClickCommand { get; }
-
-        public FavoriteLevelFilterViewModel(FavoriteLevel favoriteLevel)
+        public FavoriteLevelFilterViewModel(SelectedFavoriteLevel selectedFavoriteLevel)
         {
-            this.favoriteLevel = favoriteLevel;
-            this.Level0ButtonColor = this.favoriteLevel.SelectedLevel
-                .Select(level => FavoriteLevelColors.GetColor(0, level == 0))
-                .ToReadOnlyReactivePropertySlim()
-                .AddTo(this.disposables);
-            this.Level1ButtonColor = this.favoriteLevel.SelectedLevel
-                .Select(level => FavoriteLevelColors.GetColor(1, level == 1))
-                .ToReadOnlyReactivePropertySlim()
-                .AddTo(this.disposables);
-            this.Level2ButtonColor = this.favoriteLevel.SelectedLevel
-                .Select(level => FavoriteLevelColors.GetColor(2, level == 2))
-                .ToReadOnlyReactivePropertySlim()
-                .AddTo(this.disposables);
-            this.Level0ButtonClickCommand = new ReactiveCommand().WithSubscribe(() => this.ChangeSelectedLevel(0)).AddTo(this.disposables);
-            this.Level1ButtonClickCommand = new ReactiveCommand().WithSubscribe(() => this.ChangeSelectedLevel(1)).AddTo(this.disposables);
-            this.Level2ButtonClickCommand = new ReactiveCommand().WithSubscribe(() => this.ChangeSelectedLevel(2)).AddTo(this.disposables);
-        }
-
-        private void ChangeSelectedLevel(int newLevel)
-        {
-            this.favoriteLevel.SelectedLevel.Value = newLevel;
+            this.selectedFavoriteLevel = selectedFavoriteLevel;
+            this.ButtonViewModels = Enumerable.Range(0, 4).Select(i => new FavoriteLevelFilterButtonViewModel(this.selectedFavoriteLevel, i)).ToArray();
         }
 
         #region IDisposable

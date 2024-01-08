@@ -4,32 +4,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:v="clr-namespace:Slide.Views"
              xmlns:vm="clr-namespace:Slide.ViewModels"
              prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:FavoriteLevelFilterViewModel}"
              d:DesignHeight="20" d:DesignWidth="100">
     <StackPanel Orientation="Horizontal" Background="DarkGray">
-        <Button
-            Height="20"
-            Margin="0,0,5,0"
-            Template="{StaticResource favoriteButtonStyle}"
-            Background="{Binding Level0ButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
-            Command="{Binding Level0ButtonClickCommand}"
-        />
-        <Button
-            Height="20"
-            Margin="0,0,5,0"
-            Template="{StaticResource favoriteButtonStyle}"
-            Background="{Binding Level1ButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
-            Command="{Binding Level1ButtonClickCommand}"
-        />
-        <Button
-            Height="20"
-            Margin="0,0,5,0"
-            Template="{StaticResource favoriteButtonStyle}"
-            Background="{Binding Level2ButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
-            Command="{Binding Level2ButtonClickCommand}"
-        />
+        <v:FavoriteLevelFilterButton DataContext="{Binding ButtonViewModels[0]}" />
+        <v:FavoriteLevelFilterButton DataContext="{Binding ButtonViewModels[1]}" />
+        <v:FavoriteLevelFilterButton DataContext="{Binding ButtonViewModels[2]}" />
+        <v:FavoriteLevelFilterButton DataContext="{Binding ButtonViewModels[3]}" />
     </StackPanel>
 </UserControl>
