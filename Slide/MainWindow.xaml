@@ -10,11 +10,6 @@
         prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
         Title="Slide" Height="720" Width="1280">
-    <Window.Resources>
-        <ContextMenu x:Key="treeViewContextMenu">
-            <MenuItem Header="選択中のフォルダを開く" Command="{Binding OpenExplorerCommand}"/>
-        </ContextMenu>
-    </Window.Resources>
     <DockPanel>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -25,10 +20,13 @@
             <GridSplitter VerticalAlignment="Stretch" Width="5"/>
             <Grid Grid.Column="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="100"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <v:FileListView />
+                <DockPanel Grid.Column="0">
+                    <v:FavoriteLevelFilter DockPanel.Dock="Top" />
+                    <v:FileListBox />
+                </DockPanel>
                 <GridSplitter VerticalAlignment="Stretch" Width="5"/>
                 <v:ImagePanel Grid.Column="1" />
             </Grid>

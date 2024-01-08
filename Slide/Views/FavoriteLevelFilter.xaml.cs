@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Slide.Views
 {
     /// <summary>
-    /// FileListView.xaml の相互作用ロジック
+    /// FavoriteLevelFilter.xaml の相互作用ロジック
     /// </summary>
-    public partial class FileListView : UserControl
+    public partial class FavoriteLevelFilter : UserControl
     {
-        public FileListView()
+        public FavoriteLevelFilter()
         {
             InitializeComponent();
         }

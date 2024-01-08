@@ -26,9 +26,16 @@ namespace Slide.ViewModels
             {
                 if (selectedFile != null)
                 {
-                    using var fs = new FileStream(selectedFile.FullName, FileMode.Open, FileAccess.Read);
-                    var decoder = BitmapDecoder.Create(fs, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                    return (BitmapSource?)decoder.Frames[0];
+                    try
+                    {
+                        using var fs = new FileStream(selectedFile.FullName, FileMode.Open, FileAccess.Read);
+                        var decoder = BitmapDecoder.Create(fs, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        return (BitmapSource?)decoder.Frames[0];
+                    }
+                    catch (IOException)
+                    {
+                        return null;
+                    }
                 }
                 else
                 {

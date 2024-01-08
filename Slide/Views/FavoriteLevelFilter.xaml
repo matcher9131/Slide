@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="Slide.Views.FavoriteLevelFilter"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:vm="clr-namespace:Slide.ViewModels"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:FavoriteLevelFilterViewModel}"
+             d:DesignHeight="20" d:DesignWidth="100">
+    <StackPanel Orientation="Horizontal" Background="DarkGray">
+        <Button
+            Height="20"
+            Margin="0,0,5,0"
+            Template="{StaticResource favoriteButtonStyle}"
+            Background="{Binding Level0ButtonColor.Value, Converter={StaticResource brushConverter}}"
+            Command="{Binding Level0ButtonClickCommand}"
+        />
+        <Button
+            Height="20"
+            Margin="0,0,5,0"
+            Template="{StaticResource favoriteButtonStyle}"
+            Background="{Binding Level1ButtonColor.Value, Converter={StaticResource brushConverter}}"
+            Command="{Binding Level1ButtonClickCommand}"
+        />
+        <Button
+            Height="20"
+            Margin="0,0,5,0"
+            Template="{StaticResource favoriteButtonStyle}"
+            Background="{Binding Level2ButtonColor.Value, Converter={StaticResource brushConverter}}"
+            Command="{Binding Level2ButtonClickCommand}"
+        />
+    </StackPanel>
+</UserControl>

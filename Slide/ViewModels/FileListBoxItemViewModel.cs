@@ -12,7 +12,7 @@ using System.IO;
 
 namespace Slide.ViewModels
 {
-    public class FileListViewItemViewModel : BindableBase, IDisposable
+    public class FileListBoxItemViewModel : BindableBase, IDisposable
     {
         private readonly FileModel fileModel;
 
@@ -20,14 +20,31 @@ namespace Slide.ViewModels
 
         public ReactivePropertySlim<bool> IsSelected { get; }
 
-        public FileListViewItemViewModel(FileModel fileModel)
+        public ReadOnlyReactivePropertySlim<int> FavoriteLevel { get; }
+
+        public ReactiveCommand IncrementFavoriteLevelCommand { get; }
+
+        public FileListBoxItemViewModel(FileModel fileModel)
         {
             this.fileModel = fileModel;
             this.DisplayText = this.fileModel.Name.Select(x => x).ToReadOnlyReactivePropertySlim<string>().AddTo(this.disposables);
             this.IsSelected = new ReactivePropertySlim<bool>().AddTo(this.disposables);
+            this.FavoriteLevel = this.fileModel.FavoriteLevel.Select(x => x).ToReadOnlyReactivePropertySlim().AddTo(this.disposables);
+            this.IncrementFavoriteLevelCommand = new ReactiveCommand().WithSubscribe(this.IncrementFavoriteLevel).AddTo(this.disposables);
         }
 
         public FileInfo FileInfo => this.fileModel.FileInfo.Value;
+
+        public void IncrementFavoriteLevel()
+        {
+            this.fileModel.FavoriteLevel.Value = this.fileModel.FavoriteLevel.Value switch
+            {
+                0 => 1,
+                1 => 2,
+                2 => 0,
+                _ => 0
+            };
+        }
 
         #region IDisposable
         private readonly System.Reactive.Disposables.CompositeDisposable disposables = new();

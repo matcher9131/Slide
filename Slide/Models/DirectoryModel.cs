@@ -37,8 +37,9 @@ namespace Slide.Models
                 this.Children.AddRange(di.EnumerateDirectories()
                     .AsParallel()
                     .AsOrdered()
-                    .OrderBy(directoryInfo => directoryInfo.Name, new FilenameComparer())
-                    .Select(directoryInfo => new DirectoryModel(directoryInfo))
+                    .Where(childDirectoryInfo => !childDirectoryInfo.Attributes.HasFlag(FileAttributes.System))
+                    .Select(childDirectoryInfo => new DirectoryModel(childDirectoryInfo))
+                    .OrderBy(directoryModel => directoryModel.Name.Value, new FilenameComparer())
                 );
             }
             this.childrenAreInitialized = true;
