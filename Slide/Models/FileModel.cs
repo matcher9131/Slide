@@ -1,5 +1,6 @@
 ﻿using Prism.Mvvm;
 using Reactive.Bindings;
+using Slide.Repositories;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -36,8 +37,8 @@ namespace Slide.Models
             this.FileInfo = new ReactivePropertySlim<FileInfo>(fileInfo);
             this.Name = this.FileInfo.Select(fileInfo => fileInfo.Name).ToReadOnlyReactivePropertySlim<string>();
             this.FullName = this.FileInfo.Select(fileInfo => fileInfo.FullName).ToReadOnlyReactivePropertySlim<string>();
-            // temporary
-            this.FavoriteLevel = new();
+            this.FavoriteLevel = new(FavoriteLevelDb.GetLevel(fileInfo.FullName));
+            this.FavoriteLevel.Subscribe(lv => FavoriteLevelDb.AddOrUpdate(this.FileInfo.Value.FullName, lv));
         }
 
         #region IDisposable

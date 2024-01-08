@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converter="clr-namespace:Slide.Converter"
              xmlns:prism="http://prismlibrary.com/"
+             Startup="ApplicationStartup"
+             Exit="ApplicationExit"
              >
     <Application.Resources>
         <ControlTemplate x:Key="favoriteButtonStyle" TargetType="Button">

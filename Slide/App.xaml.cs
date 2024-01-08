@@ -1,6 +1,7 @@
 ﻿using Prism.Ioc;
 using Prism.Unity;
 using Slide.Models;
+using Slide.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -26,6 +27,16 @@ namespace Slide
         protected override Window CreateShell()
         {
             return Container.Resolve<MainWindow>();
+        }
+
+        private void ApplicationStartup(object sender, StartupEventArgs e)
+        {
+            FavoriteLevelDb.Load();
+        }
+
+        private void ApplicationExit(object sender, ExitEventArgs e)
+        {
+            FavoriteLevelDb.Save();
         }
     }
 }
