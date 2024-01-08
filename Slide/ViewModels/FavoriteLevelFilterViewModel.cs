@@ -2,6 +2,7 @@
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Slide.Models;
+using Slide.Static;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace Slide.ViewModels
 {
     public class FavoriteLevelFilterViewModel : BindableBase, IDisposable
     {
-        private FavoriteLevel favoriteLevel;
+        private readonly FavoriteLevel favoriteLevel;
 
         public ReadOnlyReactivePropertySlim<Color> Level0ButtonColor { get; }
 
@@ -32,15 +33,15 @@ namespace Slide.ViewModels
         {
             this.favoriteLevel = favoriteLevel;
             this.Level0ButtonColor = this.favoriteLevel.SelectedLevel
-                .Select(level => level == 0 ? Colors.White : Util.Colors.GetDarkerColor(Colors.White))
+                .Select(level => FavoriteLevelColors.GetColor(0, level == 0))
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(this.disposables);
             this.Level1ButtonColor = this.favoriteLevel.SelectedLevel
-                .Select(level => level == 1 ? Colors.Yellow : Util.Colors.GetDarkerColor(Colors.Yellow))
+                .Select(level => FavoriteLevelColors.GetColor(1, level == 1))
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(this.disposables);
             this.Level2ButtonColor = this.favoriteLevel.SelectedLevel
-                .Select(level => level == 2 ? Colors.DeepPink : Util.Colors.GetDarkerColor(Colors.DeepPink))
+                .Select(level => FavoriteLevelColors.GetColor(2, level == 2))
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(this.disposables);
             this.Level0ButtonClickCommand = new ReactiveCommand().WithSubscribe(() => this.ChangeSelectedLevel(0)).AddTo(this.disposables);
