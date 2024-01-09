@@ -19,7 +19,7 @@ namespace Slide.ViewModels
     public class FileListBoxViewModel : BindableBase, IDisposable
     {
         private readonly SelectedItemModel selectedItemModel;
-        private readonly FavoriteLevel favoriteLevel;
+        private readonly SelectedFavoriteLevel favoriteLevel;
 
         // ItemsをクリアするためのSubject
         private readonly Subject<Unit> clearSubject = new();
@@ -28,14 +28,14 @@ namespace Slide.ViewModels
 
         public ReadOnlyReactiveCollection<FileListBoxItemViewModel> Items { get; }
 
-        public FileListBoxViewModel(SelectedItemModel selectedItemModel, FavoriteLevel favoriteLevel)
+        public FileListBoxViewModel(SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel)
         {
             this.selectedItemModel = selectedItemModel;
             this.favoriteLevel = favoriteLevel;
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
             this.Items = Observable.CombineLatest(
                 this.selectedItemModel.SelectedDirectory,
-                this.favoriteLevel.SelectedLevel,
+                this.favoriteLevel.Level,
                 Tuple.Create
             ).Do(_ => this.clearSubject.OnNext(Unit.Default)).SelectMany(tuple =>
                 {

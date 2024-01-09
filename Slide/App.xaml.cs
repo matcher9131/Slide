@@ -24,7 +24,7 @@ namespace Slide
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<SelectedItemModel>();
-            containerRegistry.RegisterSingleton<FavoriteLevel>();
+            containerRegistry.RegisterSingleton<SelectedFavoriteLevel>();
         }
 
         protected override Window CreateShell()

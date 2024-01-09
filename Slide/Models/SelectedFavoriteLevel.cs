@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Slide.Models
 {
-    public class FavoriteLevel : BindableBase
+    public class SelectedFavoriteLevel : BindableBase
     {
-        public ReactivePropertySlim<int> SelectedLevel { get; }
+        public ReactivePropertySlim<int> Level { get; }
 
-        public FavoriteLevel()
+        public SelectedFavoriteLevel()
         {
-            this.SelectedLevel = new ReactivePropertySlim<int>();
+            this.Level = new ReactivePropertySlim<int>();
         }
     }
 }
