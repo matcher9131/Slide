@@ -46,7 +46,7 @@ namespace Slide.ViewModels
                         return selectedDirectory.EnumerateFiles()
                         .AsParallel()
                         .AsOrdered()
-                        .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension))
+                        .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
                         .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
                         .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
                         .OrderBy(vm => vm.FileInfo.Name, new FilenameComparer());
