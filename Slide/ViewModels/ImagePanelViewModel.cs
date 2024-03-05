@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Windows.Devices.PointOfService;
 
 namespace Slide.ViewModels
 {
@@ -28,13 +29,28 @@ namespace Slide.ViewModels
                 {
                     try
                     {
-                        using var fs = new FileStream(selectedFile.FullName, FileMode.Open, FileAccess.Read);
-                        var decoder = BitmapDecoder.Create(fs, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                        return (BitmapSource?)decoder.Frames[0];
+                        return LoadImage(selectedFile.FullName);
                     }
                     catch (IOException)
                     {
                         return null;
+                    }
+                    catch (Exception ex)
+                    {
+#if DEBUG
+                        System.Diagnostics.Debug.WriteLine(ex);
+#endif
+                        try
+                        {
+                            return (BitmapSource?)LoadImage2(selectedFile.FullName);
+                        }
+                        catch (Exception innerEx)
+                        {
+#if DEBUG
+                            System.Diagnostics.Debug.WriteLine(innerEx);
+#endif
+                            return null;
+                        }
                     }
                 }
                 else
@@ -42,6 +58,29 @@ namespace Slide.ViewModels
                     return null;
                 }
             }).ToReadOnlyReactiveProperty().AddTo(this.disposables);
+        }
+
+        private static BitmapFrame? LoadImage(string filepath)
+        {
+            using var fs = new FileStream(filepath, FileMode.Open, FileAccess.Read);
+            var decoder = BitmapDecoder.Create(fs, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+            return decoder.Frames[0];
+        }
+
+        private static BitmapImage LoadImage2(string filepath)
+        {
+            System.Drawing.Bitmap bitmap = new(filepath);
+            using var stream = new MemoryStream();
+            bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+            stream.Position = 0;
+            BitmapImage bitmapImage = new();
+            bitmapImage.BeginInit();
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.CreateOptions = BitmapCreateOptions.None;
+            bitmapImage.StreamSource = stream;
+            bitmapImage.EndInit();
+            bitmapImage.Freeze();
+            return bitmapImage;
         }
 
         #region IDisposable
