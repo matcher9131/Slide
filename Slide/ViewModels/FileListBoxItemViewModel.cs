@@ -23,6 +23,7 @@ namespace Slide.ViewModels
         public ReadOnlyReactivePropertySlim<int> FavoriteLevel { get; }
 
         public ReactiveCommand IncrementFavoriteLevelCommand { get; }
+        public ReactiveCommand OpenExplorerCommand { get; }
 
         public FileListBoxItemViewModel(FileModel fileModel)
         {
@@ -31,6 +32,7 @@ namespace Slide.ViewModels
             this.IsSelected = new ReactivePropertySlim<bool>().AddTo(this.disposables);
             this.FavoriteLevel = this.fileModel.FavoriteLevel.Select(x => x).ToReadOnlyReactivePropertySlim().AddTo(this.disposables);
             this.IncrementFavoriteLevelCommand = new ReactiveCommand().WithSubscribe(this.IncrementFavoriteLevel).AddTo(this.disposables);
+            this.OpenExplorerCommand = new ReactiveCommand().WithSubscribe(this.OpenExplorer).AddTo(this.disposables);
         }
 
         public FileInfo FileInfo => this.fileModel.FileInfo.Value;
@@ -45,6 +47,11 @@ namespace Slide.ViewModels
                 3 => 0,
                 _ => 0
             };
+        }
+
+        public void OpenExplorer()
+        {
+            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{this.fileModel.FileInfo.Value.FullName}\"");
         }
 
         #region IDisposable

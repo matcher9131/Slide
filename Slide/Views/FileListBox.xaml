@@ -18,6 +18,11 @@
         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
         KeyboardNavigation.DirectionalNavigation="Cycle"
     >
+        <ListBox.Resources>
+            <ContextMenu x:Key="listBoxContextMenu">
+                <MenuItem Header="エクスプローラーでフォルダを開く(_O)" Command="{Binding OpenExplorerCommand}"/>
+            </ContextMenu>
+        </ListBox.Resources>
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
                 <WrapPanel IsItemsHost="True" Orientation="Vertical" Background="DarkGray" />
@@ -26,6 +31,11 @@
         <ListBox.ItemTemplate>
             <DataTemplate DataType="{x:Type vm:FileListBoxItemViewModel}">
                 <DockPanel>
+                    <DockPanel.Style>
+                        <Style TargetType="DockPanel">
+                            <Setter Property="ContextMenu" Value="{Binding Source={StaticResource listBoxContextMenu}}" />
+                        </Style>
+                    </DockPanel.Style>
                     <Button
                         DockPanel.Dock="Left"
                         Height="20"
@@ -37,7 +47,6 @@
                     <DockPanel>
                         <TextBlock Text="{Binding DisplayText}" />
                     </DockPanel>
-
                 </DockPanel>
             </DataTemplate>
         </ListBox.ItemTemplate>
