@@ -1,27 +1,29 @@
-﻿using Prism.Mvvm;
+﻿using Prism.Events;
+using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using Slide.Behavior;
 using Slide.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using Windows.Devices.PointOfService;
 
 namespace Slide.ViewModels
 {
     public class ImagePanelViewModel : BindableBase, IDisposable
     {
+        private readonly IEventAggregator eventAggregator;
         private readonly SelectedItemModel selectedItemModel;
 
         public ReadOnlyReactiveProperty<BitmapSource?> Source { get; }
 
-        public ImagePanelViewModel(SelectedItemModel selectedItemModel)
+        public ReactiveCommand<ClickPosition> ClickCommand { get; }
+
+        public ImagePanelViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel)
         {
+            this.eventAggregator = eventAggregator;
             this.selectedItemModel = selectedItemModel;
             this.Source = this.selectedItemModel.SelectedFile.Select(selectedFile =>
             {
@@ -58,6 +60,7 @@ namespace Slide.ViewModels
                     return null;
                 }
             }).ToReadOnlyReactiveProperty().AddTo(this.disposables);
+            this.ClickCommand = new ReactiveCommand<ClickPosition>().WithSubscribe(this.OnClick).AddTo(this.disposables);
         }
 
         private static BitmapFrame? LoadImage(string filepath)
@@ -81,6 +84,11 @@ namespace Slide.ViewModels
             bitmapImage.EndInit();
             bitmapImage.Freeze();
             return bitmapImage;
+        }
+
+        private void OnClick(ClickPosition clickPosition)
+        {
+            this.eventAggregator.GetEvent<ClickPositionEvent>().Publish(clickPosition);
         }
 
         #region IDisposable
