@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace Slide
+namespace Slide.Models.FileComparer
 {
-    public sealed class FilenameComparer : IComparer<string>
+    public sealed class FilenameComparer : IComparer<FileSystemInfo?>
     {
         [SuppressUnmanagedCodeSecurity]
         private static class SafeNativeMethods
@@ -13,9 +14,9 @@ namespace Slide
             public static extern int StrCmpLogicalW(string x, string y);
         }
 
-        public int Compare(string? x, string? y)
+        public int Compare(FileSystemInfo? x, FileSystemInfo? y)
         {
-            return SafeNativeMethods.StrCmpLogicalW(x ?? string.Empty, y ?? string.Empty);
+            return SafeNativeMethods.StrCmpLogicalW(x?.Name ?? string.Empty, y?.Name ?? string.Empty);
         }
     }
 }

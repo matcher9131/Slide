@@ -1,5 +1,6 @@
 ﻿using Prism.Mvvm;
 using Reactive.Bindings;
+using Slide.Models.FileComparer;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -34,12 +35,15 @@ namespace Slide.Models
             this.Children.Clear();
             if (this.DirectoryInfo.Value is DirectoryInfo di)
             {
+                //
+                // TODO: ソート方法
+                //
                 this.Children.AddRange(di.EnumerateDirectories()
                     .AsParallel()
                     .AsOrdered()
                     .Where(childDirectoryInfo => !childDirectoryInfo.Attributes.HasFlag(FileAttributes.System))
                     .Select(childDirectoryInfo => new DirectoryModel(childDirectoryInfo))
-                    .OrderBy(directoryModel => directoryModel.Name.Value, new FilenameComparer())
+                    .OrderBy(directoryModel => directoryModel.DirectoryInfo.Value, new FilenameComparer())
                 );
             }
             this.childrenAreInitialized = true;

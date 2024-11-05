@@ -5,17 +5,14 @@ using Reactive.Bindings.Extensions;
 using Reactive.Bindings.Helpers;
 using Slide.Behavior;
 using Slide.Models;
+using Slide.Models.FileComparer;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
-using Windows.ApplicationModel.VoiceCommands;
 
 namespace Slide.ViewModels
 {
@@ -49,13 +46,16 @@ namespace Slide.ViewModels
                     if (selectedDirectory == null) return Enumerable.Empty<FileListBoxItemViewModel>();
                     try
                     {
+                        //
+                        // TODO: ソート方法
+                        //
                         return selectedDirectory.EnumerateFiles()
                         .AsParallel()
                         .AsOrdered()
                         .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
                         .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
                         .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
-                        .OrderBy(vm => vm.FileInfo.Name, new FilenameComparer());
+                        .OrderBy(vm => vm.FileInfo, new FilenameComparer());
                     }
                     catch (IOException)
                     {

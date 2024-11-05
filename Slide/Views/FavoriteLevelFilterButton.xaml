@@ -7,7 +7,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="clr-namespace:Slide.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance vm:FavoriteLevelFilterButton}"
+             d:DataContext="{d:DesignInstance vm:FavoriteLevelFilterButtonViewModel}"
              d:DesignHeight="20" d:DesignWidth="20">
     <Button
             Height="20"
