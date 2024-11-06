@@ -1,6 +1,7 @@
 ﻿using Prism.Ioc;
 using Prism.Unity;
 using Slide.Models;
+using Slide.Models.Comparer;
 using Slide.Repositories;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,7 @@ namespace Slide
         {
             containerRegistry.RegisterSingleton<SelectedItemModel>();
             containerRegistry.RegisterSingleton<SelectedFavoriteLevel>();
+            containerRegistry.RegisterSingleton<SelectedFileComparer>();
         }
 
         protected override Window CreateShell()

@@ -17,15 +17,12 @@ namespace Slide.Models
 
         public ReadOnlyReactivePropertySlim<string> Name { get; }
 
-        public ReactivePropertySlim<FileComparerBase> FileComparer { get; }
-
         public ReactiveCollection<DirectoryModel> Children { get; }
 
         public DirectoryModel(DirectoryInfo? directoryInfo)
         {
             this.DirectoryInfo = new ReactivePropertySlim<DirectoryInfo?>(directoryInfo);
             this.Name = this.DirectoryInfo.Select(x => x?.Name ?? "*").ToReadOnlyReactivePropertySlim<string>();
-            this.FileComparer = new ReactivePropertySlim<FileComparerBase>(FilenameComparer.Instance);
             this.Children = [];
             if (directoryInfo != null) // 無限ループ防止
             {

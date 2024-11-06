@@ -5,7 +5,6 @@ using Reactive.Bindings.Extensions;
 using Reactive.Bindings.Helpers;
 using Slide.Behavior;
 using Slide.Models;
-using Slide.Models.Comparer;
 using System;
 using System.IO;
 using System.Linq;
@@ -21,6 +20,7 @@ namespace Slide.ViewModels
         private IEventAggregator eventAggregator;
         private readonly SelectedItemModel selectedItemModel;
         private readonly SelectedFavoriteLevel favoriteLevel;
+        private readonly SelectedFileComparer selectedFileComparer;
 
         // ItemsをクリアするためのSubject
         private readonly Subject<Unit> clearSubject = new();
@@ -29,32 +29,32 @@ namespace Slide.ViewModels
 
         public ReadOnlyReactiveCollection<FileListBoxItemViewModel> Items { get; }
 
-        public FileListBoxViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel)
+        public FileListBoxViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel, SelectedFileComparer selectedFileComparer)
         {
             this.eventAggregator = eventAggregator;
             this.eventAggregator.GetEvent<ClickPositionEvent>().Subscribe(this.HandleClickPositionEvent).AddTo(this.disposables);
             this.selectedItemModel = selectedItemModel;
             this.favoriteLevel = favoriteLevel;
+            this.selectedFileComparer = selectedFileComparer;
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
             this.Items = Observable.CombineLatest(
                 this.selectedItemModel.SelectedDirectory,
                 this.favoriteLevel.Level,
+                this.selectedFileComparer.FileComparer,
                 Tuple.Create
             ).Do(_ => this.clearSubject.OnNext(Unit.Default)).SelectMany(tuple =>
                 {
-                    var (selectedDirectory, favoriteLevel) = tuple;
-                    if (selectedDirectory is null || selectedDirectory.DirectoryInfo.Value is null || selectedDirectory.FileComparer.Value is null) return [];
+                    var (selectedDirectory, favoriteLevel, fileComparer) = tuple;
+                    if (selectedDirectory is null || selectedDirectory.DirectoryInfo.Value is null) return [];
                     try
                     {
-                        var r = selectedDirectory.DirectoryInfo.Value.EnumerateFiles()
+                        return selectedDirectory.DirectoryInfo.Value.EnumerateFiles()
                         .AsParallel()
                         .AsOrdered()
                         .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
                         .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
                         .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
-                        .ToList()
-                        .OrderBy(vm => vm.FileModel.FileInfo.Value, selectedDirectory.FileComparer.Value);
-                        return r;
+                        .OrderBy(vm => vm.FileModel.FileInfo.Value, fileComparer);
                     }
                     catch (IOException)
                     {
