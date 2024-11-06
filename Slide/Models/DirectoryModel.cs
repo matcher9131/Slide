@@ -1,6 +1,7 @@
 ﻿using Prism.Mvvm;
 using Reactive.Bindings;
-using Slide.Models.FileComparer;
+using Slide.Models.Comparer;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -16,13 +17,16 @@ namespace Slide.Models
 
         public ReadOnlyReactivePropertySlim<string> Name { get; }
 
+        public ReactivePropertySlim<FileComparerBase> FileComparer { get; }
+
         public ReactiveCollection<DirectoryModel> Children { get; }
 
         public DirectoryModel(DirectoryInfo? directoryInfo)
         {
             this.DirectoryInfo = new ReactivePropertySlim<DirectoryInfo?>(directoryInfo);
             this.Name = this.DirectoryInfo.Select(x => x?.Name ?? "*").ToReadOnlyReactivePropertySlim<string>();
-            this.Children = new();
+            this.FileComparer = new ReactivePropertySlim<FileComparerBase>(FilenameComparer.Instance);
+            this.Children = [];
             if (directoryInfo != null) // 無限ループ防止
             {
                 this.Children.Add(new DirectoryModel(null));
@@ -35,15 +39,11 @@ namespace Slide.Models
             this.Children.Clear();
             if (this.DirectoryInfo.Value is DirectoryInfo di)
             {
-                //
-                // TODO: ソート方法
-                //
                 this.Children.AddRange(di.EnumerateDirectories()
                     .AsParallel()
                     .AsOrdered()
                     .Where(childDirectoryInfo => !childDirectoryInfo.Attributes.HasFlag(FileAttributes.System))
                     .Select(childDirectoryInfo => new DirectoryModel(childDirectoryInfo))
-                    .OrderBy(directoryModel => directoryModel.DirectoryInfo.Value, new FilenameComparer())
                 );
             }
             this.childrenAreInitialized = true;

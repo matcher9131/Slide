@@ -27,7 +27,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <DockPanel Grid.Column="0">
-                    <v:SortSelector DockPanel.Dock="Top" />
                     <v:FavoriteLevelFilter DockPanel.Dock="Top" />
                     <v:FileListBox />
                 </DockPanel>

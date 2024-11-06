@@ -5,7 +5,7 @@ using Reactive.Bindings.Extensions;
 using Reactive.Bindings.Helpers;
 using Slide.Behavior;
 using Slide.Models;
-using Slide.Models.FileComparer;
+using Slide.Models.Comparer;
 using System;
 using System.IO;
 using System.Linq;
