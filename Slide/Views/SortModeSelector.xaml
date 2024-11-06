@@ -1,5 +1,4 @@
-﻿<!-- 2か所で使い回すためAutowireViewModelは使わない -->
-<UserControl
+﻿<UserControl
     x:Class="Slide.Views.SortModeSelector"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:prism="http://prismlibrary.com/"             
     xmlns:vm="clr-namespace:Slide.ViewModels"
-    xmlns:m="clr-namespace:Slide.Models"
+    prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:SortModeSelectorViewModel}"
     d:DesignHeight="20" d:DesignWidth="100"
@@ -18,21 +17,21 @@
             Margin="0,0,5,0"
             Template="{StaticResource filenameButtonStyle}"
             Background="{Binding FilenameButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
-            Command="{Binding ClickCommand}" CommandParameter="{x:Static m:SortMode.Filename}"
+            Command="{Binding ClickFilenameButtonCommand}"
         />
         <Button
             Height="20"
             Margin="0,0,5,0"
             Template="{StaticResource lastWriteTimeButtonStyle}"
             Background="{Binding LastWriteTimeButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
-            Command="{Binding ClickCommand}" CommandParameter="{x:Static m:SortMode.LastWriteTime}"
+            Command="{Binding ClickLastWriteTimeButtonCommand}"
         />
         <Button
             Height="20"
             Margin="0,0,5,0"
             Template="{StaticResource creationTimeButtonStyle}"
             Background="{Binding CreationTimeButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
-            Command="{Binding ClickCommand}" CommandParameter="{x:Static m:SortMode.CreationTime}"
+            Command="{Binding ClickCreationTimeButtonCommand}"
         />
     </StackPanel>
 </UserControl>

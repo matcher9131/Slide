@@ -43,19 +43,17 @@ namespace Slide.ViewModels
             ).Do(_ => this.clearSubject.OnNext(Unit.Default)).SelectMany(tuple =>
                 {
                     var (selectedDirectory, favoriteLevel) = tuple;
-                    if (selectedDirectory == null) return Enumerable.Empty<FileListBoxItemViewModel>();
+                    if (selectedDirectory is null || selectedDirectory.DirectoryInfo.Value is null) return [];
+                    var comparer = selectedDirectory.FileComparer.Value;
                     try
                     {
-                        //
-                        // TODO: ソート方法
-                        //
-                        return selectedDirectory.EnumerateFiles()
+                        return selectedDirectory.DirectoryInfo.Value.EnumerateFiles()
                         .AsParallel()
                         .AsOrdered()
                         .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
                         .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
                         .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
-                        .OrderBy(vm => vm.FileInfo, new FilenameComparer());
+                        .OrderBy(vm => vm.FileModel.FileInfo.Value, comparer);
                     }
                     catch (IOException)
                     {
@@ -69,7 +67,7 @@ namespace Slide.ViewModels
         {
             if (e.AddedItems.Count > 0 && e.AddedItems[0] is FileListBoxItemViewModel first)
             {
-                this.selectedItemModel.SelectedFile.Value = first.FileInfo;
+                this.selectedItemModel.SelectedFile.Value = first.FileModel;
                 first.IsSelected.Value = true;
             }
 

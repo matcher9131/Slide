@@ -6,14 +6,14 @@ namespace Slide.Models
 {
     public class SelectedItemModel : BindableBase
     {
-        public ReactivePropertySlim<DirectoryInfo?> SelectedDirectory { get; }
+        public ReactivePropertySlim<DirectoryModel?> SelectedDirectory { get; }
 
-        public ReactivePropertySlim<FileInfo?> SelectedFile { get; }
+        public ReactivePropertySlim<FileModel?> SelectedFile { get; }
 
         public SelectedItemModel()
         {
-            this.SelectedDirectory = new ReactivePropertySlim<DirectoryInfo?>(null);
-            this.SelectedFile = new ReactivePropertySlim<FileInfo?>(null);
+            this.SelectedDirectory = new ReactivePropertySlim<DirectoryModel?>(null);
+            this.SelectedFile = new ReactivePropertySlim<FileModel?>(null);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Slide.ViewModels
 {
     public class ExplorerTreeViewItemViewModel : BindableBase, IDisposable
     {
-        private readonly DirectoryModel directoryModel;
+        public DirectoryModel DirectoryModel { get; }
 
         public ReadOnlyReactivePropertySlim<string> DisplayText { get; }
 
@@ -23,24 +23,22 @@ namespace Slide.ViewModels
 
         public ExplorerTreeViewItemViewModel(DirectoryModel directoryModel)
         {
-            this.directoryModel = directoryModel;
-            this.DisplayText = this.directoryModel.Name.Select(x => x).ToReadOnlyReactivePropertySlim<string>().AddTo(this.disposables);
-            this.Children = this.directoryModel.Children.ToReadOnlyReactiveCollection(child => new ExplorerTreeViewItemViewModel(child)).AddTo(this.disposables);
+            this.DirectoryModel = directoryModel;
+            this.DisplayText = this.DirectoryModel.Name.Select(x => x).ToReadOnlyReactivePropertySlim<string>().AddTo(this.disposables);
+            this.Children = this.DirectoryModel.Children.ToReadOnlyReactiveCollection(child => new ExplorerTreeViewItemViewModel(child)).AddTo(this.disposables);
             this.IsSelected = new ReactivePropertySlim<bool>().AddTo(this.disposables);
-            this.OpenExplorerCommand = this.directoryModel.DirectoryInfo
+            this.OpenExplorerCommand = this.DirectoryModel.DirectoryInfo
                 .Select(directoryInfo => directoryInfo?.FullName != null)
                 .ToReactiveCommand()
                 .WithSubscribe(this.OpenExplorer)
                 .AddTo(this.disposables);
         }
 
-        public DirectoryInfo? DirectoryInfo => this.directoryModel.DirectoryInfo.Value;
-
-        public void InitializeChildren() => this.directoryModel.InitializeChildren();
+        public void InitializeChildren() => this.DirectoryModel.InitializeChildren();
 
         public void OpenExplorer()
         {
-            if (this.directoryModel.DirectoryInfo.Value is DirectoryInfo di)
+            if (this.DirectoryModel.DirectoryInfo.Value is DirectoryInfo di)
             {
                 System.Diagnostics.Process.Start("explorer.exe", di.FullName);
             }

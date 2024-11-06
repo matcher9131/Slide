@@ -6,9 +6,9 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:v="clr-namespace:Slide.Views"
         xmlns:vm="clr-namespace:Slide.ViewModels"
-        d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
         prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
         Title="Slide" Height="720" Width="1280">
     <DockPanel>
         <Grid>
@@ -17,7 +17,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="0">
-                <v:SortSelector DockPanel.Dock="Top" />
+                <v:SortModeSelector DockPanel.Dock="Top" />
                 <v:ExplorerTreeView  />
             </DockPanel>
             <GridSplitter VerticalAlignment="Stretch" Width="5"/>
