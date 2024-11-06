@@ -43,21 +43,22 @@ namespace Slide.ViewModels
             ).Do(_ => this.clearSubject.OnNext(Unit.Default)).SelectMany(tuple =>
                 {
                     var (selectedDirectory, favoriteLevel) = tuple;
-                    if (selectedDirectory is null || selectedDirectory.DirectoryInfo.Value is null) return [];
-                    var comparer = selectedDirectory.FileComparer.Value;
+                    if (selectedDirectory is null || selectedDirectory.DirectoryInfo.Value is null || selectedDirectory.FileComparer.Value is null) return [];
                     try
                     {
-                        return selectedDirectory.DirectoryInfo.Value.EnumerateFiles()
+                        var r = selectedDirectory.DirectoryInfo.Value.EnumerateFiles()
                         .AsParallel()
                         .AsOrdered()
                         .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
                         .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
                         .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
-                        .OrderBy(vm => vm.FileModel.FileInfo.Value, comparer);
+                        .ToList()
+                        .OrderBy(vm => vm.FileModel.FileInfo.Value, selectedDirectory.FileComparer.Value);
+                        return r;
                     }
                     catch (IOException)
                     {
-                        return Enumerable.Empty<FileListBoxItemViewModel>();
+                        return [];
                     }
                 }
             ).ToReadOnlyReactiveCollection(this.clearSubject);

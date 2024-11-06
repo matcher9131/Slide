@@ -27,12 +27,6 @@ namespace Slide.ViewModels
             this.selectedDirectory = selectedItemModel.SelectedDirectory;
             this.FilenameButtonColor = this.selectedDirectory
                 .Select(selectedDirectory => selectedDirectory?.FileComparer?.Value == FilenameComparer.Instance ? Colors.AntiqueWhite : Colors.Black)
-                //.Select(selectedDirectory =>
-                //{
-                //    var b = selectedDirectory?.FileComparer?.Value == FilenameComparer.Instance;
-                //    System.Diagnostics.Debug.WriteLine($"[SortModeSelectorViewModel.FilenameButtonColor] enabled = {b}");
-                //    return b ? Colors.AntiqueWhite : Colors.Black;
-                //})
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(this.disposables);
             this.LastWriteTimeButtonColor = this.selectedDirectory
@@ -50,9 +44,6 @@ namespace Slide.ViewModels
 
         private void SetFilenameComparer()
         {
-            //
-            System.Diagnostics.Debug.WriteLine("SortModeSelectorViewModel.SetFilenameComparer()");
-            //
             if (this.selectedDirectory.Value is DirectoryModel selectedDirectory)
             {
                 selectedDirectory.FileComparer.Value = FilenameComparer.Instance;
