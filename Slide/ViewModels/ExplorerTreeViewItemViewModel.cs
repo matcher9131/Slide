@@ -77,9 +77,15 @@ namespace Slide.ViewModels
                 .ToReactiveCommand()
                 .WithSubscribe(this.OpenExplorer)
                 .AddTo(this.disposables);
+            this.DirectoryModel.FileComparer.Subscribe(this.OnComparerChanged).AddTo(this.disposables);
         }
 
         public void InitializeChildren() => this.DirectoryModel.InitializeChildren();
+
+        private void OnComparerChanged(FileComparerBase comparer)
+        {
+            this.ChildrenView.CustomSort = new ExplorerTreeViewItemViewModelComparer(comparer);
+        }
 
         private void OpenExplorer()
         {
@@ -94,4 +100,15 @@ namespace Slide.ViewModels
         public void Dispose() => this.disposables.Dispose();
         #endregion
     }
+
+    public class ExplorerTreeViewItemViewModelComparer(FileComparerBase comparer) : IComparer
+    {
+        private readonly FileComparerBase comparer = comparer;
+
+        public int Compare(object? x, object? y)
+        {
+            return this.comparer.Compare((x as ExplorerTreeViewItemViewModel)?.DirectoryModel?.DirectoryInfo?.Value, (y as ExplorerTreeViewItemViewModel)?.DirectoryModel?.DirectoryInfo?.Value);
+        }
+    }
+
 }
