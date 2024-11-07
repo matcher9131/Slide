@@ -7,7 +7,8 @@ namespace Slide.Models.Comparer
     {
         public override int Compare(FileSystemInfo? x, FileSystemInfo? y)
         {
-            return (x?.LastWriteTime ?? DateTime.MaxValue).CompareTo(y?.LastWriteTime ?? DateTime.MaxValue);
+            // 降順にするために符号を反転する
+            return -(x?.LastWriteTime ?? DateTime.MaxValue).CompareTo(y?.LastWriteTime ?? DateTime.MaxValue);
         }
 
         public static LastWriteTimeComparer Instance { get; } = new LastWriteTimeComparer();
