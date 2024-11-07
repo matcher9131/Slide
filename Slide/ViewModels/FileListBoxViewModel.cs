@@ -28,7 +28,7 @@ namespace Slide.ViewModels
         public ReactiveCommand<SelectionChangedEventArgs> SelectedItemChangedCommand { get; }
 
         // ReactiveCollectionでClearすると最初の要素で不都合が生じるため、ObservableCollectionで手続き的に処理
-        public ObservableCollection<FileListBoxItemViewModel> Items { get; } = [];
+        public ObservableCollection<FileListBoxItemViewModel> Items { get; private set; } = [];
 
         public FileListBoxViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel)
         {

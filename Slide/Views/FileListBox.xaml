@@ -22,6 +22,11 @@
             <ContextMenu x:Key="listBoxContextMenu">
                 <MenuItem Header="エクスプローラーでフォルダを開く(_O)" Command="{Binding OpenExplorerCommand}"/>
             </ContextMenu>
+            <!-- バインドエラーを無くすためのおまじない -->
+            <Style TargetType="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
         </ListBox.Resources>
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
@@ -31,8 +36,9 @@
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
                 <Setter Property="IsSelected" Value="{Binding IsSelected.Value, Mode=OneWay}" />
-                <!--<Setter Property="HorizontalContentAlignment" Value="Left"/>
-                <Setter Property="VerticalContentAlignment" Value="Center"/>-->
+                <!-- バインドエラーを無くすためのおまじない -->
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
         </ListBox.ItemContainerStyle>
         <ListBox.ItemTemplate>
