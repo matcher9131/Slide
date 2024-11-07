@@ -9,10 +9,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace Slide.ViewModels
 {
@@ -22,13 +21,14 @@ namespace Slide.ViewModels
         private readonly SelectedItemModel selectedItemModel;
         private readonly SelectedFavoriteLevel favoriteLevel;
 
-        // ItemsをクリアするためのSubject
-        private readonly Subject<Unit> clearSubject = new();
+        private string? currentSelectedDirectoryPath = null;
 
         public ReactiveCommand<SelectionChangedEventArgs> SelectedItemChangedCommand { get; }
 
         // ReactiveCollectionでClearすると最初の要素で不都合が生じるため、ObservableCollectionで手続き的に処理
         public ObservableCollection<FileListBoxItemViewModel> Items { get; private set; } = [];
+
+        public ListCollectionView ItemsView { get; private set; }
 
         public FileListBoxViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel)
         {
@@ -36,6 +36,7 @@ namespace Slide.ViewModels
             this.eventAggregator.GetEvent<ClickPositionEvent>().Subscribe(this.HandleClickPositionEvent).AddTo(this.disposables);
             this.selectedItemModel = selectedItemModel;
             this.favoriteLevel = favoriteLevel;
+            this.ItemsView = new ListCollectionView(this.Items) { IsLiveFiltering = true, IsLiveSorting = true };
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
             Observable.CombineLatest(
                 this.selectedItemModel.SelectedDirectoryAndComparer,
@@ -50,23 +51,29 @@ namespace Slide.ViewModels
 
         private void SetItems(DirectoryInfo? directoryInfo, FileComparerBase fileComparer, int favoriteLevel)
         {
-            this.Items.Clear();
-            if (directoryInfo is null) return;
-            try
+            if (directoryInfo?.FullName != this.currentSelectedDirectoryPath)
             {
-                this.Items.AddRange(directoryInfo.EnumerateFiles()
-                    .AsParallel()
-                    .AsOrdered()
-                    .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
-                    .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
-                    .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
-                    .OrderBy(vm => vm.FileModel.FileInfo.Value, fileComparer)
-                );
+                this.currentSelectedDirectoryPath = directoryInfo?.FullName;
+                this.Items.Clear();
+                if (directoryInfo is not null)
+                {
+                    try
+                    {
+                        this.Items.AddRange(directoryInfo.EnumerateFiles()
+                            .AsParallel()
+                            .AsOrdered()
+                            .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
+                            .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
+                        );
+                    }
+                    catch (IOException)
+                    {
+                        // Do nothing
+                    }
+                }
             }
-            catch (IOException)
-            {
-                // Do nothing
-            }
+            this.ItemsView.CustomSort = new FileListBoxItemViewModelComparer(fileComparer);
+            this.ItemsView.Filter = vm => ((vm as FileListBoxItemViewModel)?.FavoriteLevel?.Value ?? -1) >= favoriteLevel;
         }
 
         private void OnSelectedItemChanged(SelectionChangedEventArgs e)

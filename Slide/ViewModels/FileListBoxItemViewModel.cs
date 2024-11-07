@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using Prism.Mvvm;
+using System.Collections;
+using Slide.Models.Comparer;
 
 namespace Slide.ViewModels
 {
@@ -51,5 +53,15 @@ namespace Slide.ViewModels
         private readonly System.Reactive.Disposables.CompositeDisposable disposables = new();
         public void Dispose() => this.disposables.Dispose();
         #endregion
+    }
+
+    public class FileListBoxItemViewModelComparer(FileComparerBase comparer) : IComparer
+    {
+        private readonly FileComparerBase comparer = comparer;
+
+        public int Compare(object? x, object? y)
+        {
+            return this.comparer.Compare((x as FileListBoxItemViewModel)?.FileModel?.FileInfo?.Value, (y as FileListBoxItemViewModel)?.FileModel?.FileInfo?.Value);
+        }
     }
 }
