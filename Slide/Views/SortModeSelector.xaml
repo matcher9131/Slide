@@ -18,6 +18,7 @@
             Template="{StaticResource filenameButtonStyle}"
             Background="{Binding FilenameButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
             Command="{Binding ClickFilenameButtonCommand}"
+            ToolTip="名前昇順で表示"
         />
         <Button
             Height="20"
@@ -25,6 +26,7 @@
             Template="{StaticResource lastWriteTimeButtonStyle}"
             Background="{Binding LastWriteTimeButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
             Command="{Binding ClickLastWriteTimeButtonCommand}"
+            ToolTip="更新日時降順で表示"
         />
         <Button
             Height="20"
@@ -32,6 +34,7 @@
             Template="{StaticResource creationTimeButtonStyle}"
             Background="{Binding CreationTimeButtonColor.Value, Converter={StaticResource colorBrushConverter}}"
             Command="{Binding ClickCreationTimeButtonCommand}"
+            ToolTip="作成日時降順で表示"
         />
     </StackPanel>
 </UserControl>
