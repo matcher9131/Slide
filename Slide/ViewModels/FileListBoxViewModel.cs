@@ -2,10 +2,11 @@
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Reactive.Bindings.Helpers;
 using Slide.Behavior;
 using Slide.Models;
+using Slide.Models.Comparer;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -17,51 +18,55 @@ namespace Slide.ViewModels
 {
     public class FileListBoxViewModel : BindableBase, IDisposable
     {
-        private IEventAggregator eventAggregator;
+        private readonly IEventAggregator eventAggregator;
         private readonly SelectedItemModel selectedItemModel;
         private readonly SelectedFavoriteLevel favoriteLevel;
-        private readonly SelectedFileComparer selectedFileComparer;
 
         // ItemsをクリアするためのSubject
         private readonly Subject<Unit> clearSubject = new();
 
         public ReactiveCommand<SelectionChangedEventArgs> SelectedItemChangedCommand { get; }
 
-        public ReadOnlyReactiveCollection<FileListBoxItemViewModel> Items { get; }
+        // ReactiveCollectionでClearすると最初の要素で不都合が生じるため、ObservableCollectionで手続き的に処理
+        public ObservableCollection<FileListBoxItemViewModel> Items { get; } = [];
 
-        public FileListBoxViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel, SelectedFileComparer selectedFileComparer)
+        public FileListBoxViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel)
         {
             this.eventAggregator = eventAggregator;
             this.eventAggregator.GetEvent<ClickPositionEvent>().Subscribe(this.HandleClickPositionEvent).AddTo(this.disposables);
             this.selectedItemModel = selectedItemModel;
             this.favoriteLevel = favoriteLevel;
-            this.selectedFileComparer = selectedFileComparer;
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
-            this.Items = Observable.CombineLatest(
-                this.selectedItemModel.SelectedDirectory,
+            Observable.CombineLatest(
+                this.selectedItemModel.SelectedDirectoryAndComparer,
                 this.favoriteLevel.Level,
-                this.selectedFileComparer.FileComparer,
                 Tuple.Create
-            ).Do(_ => this.clearSubject.OnNext(Unit.Default)).SelectMany(tuple =>
-                {
-                    var (selectedDirectory, favoriteLevel, fileComparer) = tuple;
-                    if (selectedDirectory is null || selectedDirectory.DirectoryInfo.Value is null) return [];
-                    try
-                    {
-                        return selectedDirectory.DirectoryInfo.Value.EnumerateFiles()
-                        .AsParallel()
-                        .AsOrdered()
-                        .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
-                        .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
-                        .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
-                        .OrderBy(vm => vm.FileModel.FileInfo.Value, fileComparer);
-                    }
-                    catch (IOException)
-                    {
-                        return [];
-                    }
-                }
-            ).ToReadOnlyReactiveCollection(this.clearSubject);
+            ).Subscribe(tuple =>
+            {
+                var ((selectedDirectoryInfo, fileComparer), favoriteLevel) = tuple;
+                this.SetItems(selectedDirectoryInfo, fileComparer, favoriteLevel);
+            }).AddTo(this.disposables);
+        }
+
+        private void SetItems(DirectoryInfo? directoryInfo, FileComparerBase fileComparer, int favoriteLevel)
+        {
+            this.Items.Clear();
+            if (directoryInfo is null) return;
+            try
+            {
+                this.Items.AddRange(directoryInfo.EnumerateFiles()
+                    .AsParallel()
+                    .AsOrdered()
+                    .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
+                    .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
+                    .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
+                    .OrderBy(vm => vm.FileModel.FileInfo.Value, fileComparer)
+                );
+            }
+            catch (IOException)
+            {
+                // Do nothing
+            }
         }
 
         private void OnSelectedItemChanged(SelectionChangedEventArgs e)

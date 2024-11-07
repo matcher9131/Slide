@@ -26,7 +26,6 @@ namespace Slide
         {
             containerRegistry.RegisterSingleton<SelectedItemModel>();
             containerRegistry.RegisterSingleton<SelectedFavoriteLevel>();
-            containerRegistry.RegisterSingleton<SelectedFileComparer>();
         }
 
         protected override Window CreateShell()

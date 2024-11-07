@@ -32,7 +32,7 @@
         </TreeView.ItemTemplate>
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="SelectedItemChanged">
-                <prism:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" TriggerParameterPath="NewValue" />
+                <prism:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" />
             </i:EventTrigger>
         </i:Interaction.Triggers>
     </TreeView>

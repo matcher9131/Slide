@@ -4,7 +4,6 @@ using Reactive.Bindings.Extensions;
 using Slide.Models;
 using Slide.Models.Comparer;
 using System;
-using System.IO;
 using System.Reactive.Linq;
 using System.Windows.Media;
 
@@ -12,8 +11,9 @@ namespace Slide.ViewModels
 {
     public class SortModeSelectorViewModel : BindableBase, IDisposable
     {
-        private readonly ReactivePropertySlim<DirectoryModel?> selectedDirectory;
-        private readonly SelectedFileComparer selectedFileComparer;
+        private readonly SelectedItemModel selectedItemModel;
+
+        public ReadOnlyReactivePropertySlim<FileComparerBase?> SelectedFileComparer { get; }
 
         public ReadOnlyReactivePropertySlim<Color> FilenameButtonColor { get; }
         public ReadOnlyReactivePropertySlim<Color> LastWriteTimeButtonColor { get; }
@@ -24,19 +24,19 @@ namespace Slide.ViewModels
         public ReactiveCommandSlim ClickLastWriteTimeButtonCommand { get; }
         public ReactiveCommandSlim ClickCreationTimeButtonCommand { get; }
 
-        public SortModeSelectorViewModel(SelectedItemModel selectedItemModel, SelectedFileComparer fileComparerDictionary)
+        public SortModeSelectorViewModel(SelectedItemModel selectedItemModel)
         {
-            this.selectedDirectory = selectedItemModel.SelectedDirectory;
-            this.selectedFileComparer = fileComparerDictionary;
-            this.FilenameButtonColor = this.selectedFileComparer.FileComparer
+            this.selectedItemModel = selectedItemModel;
+            this.SelectedFileComparer = this.selectedItemModel.SelectedDirectoryAndComparer.Select(tuple => tuple.comparer).ToReadOnlyReactivePropertySlim();
+            this.FilenameButtonColor = this.SelectedFileComparer
                 .Select(selectedFileComparer => selectedFileComparer == FilenameComparer.Instance ? Colors.AntiqueWhite : Colors.Black)
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(this.disposables);
-            this.LastWriteTimeButtonColor = this.selectedFileComparer.FileComparer
+            this.LastWriteTimeButtonColor = this.SelectedFileComparer
                 .Select(selectedFileComparer => selectedFileComparer == LastWriteTimeComparer.Instance ? Colors.AntiqueWhite : Colors.Black)
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(this.disposables);
-            this.CreationTimeButtonColor = this.selectedFileComparer.FileComparer
+            this.CreationTimeButtonColor = this.SelectedFileComparer
                 .Select(selectedFileComparer => selectedFileComparer == CreationTimeComparer.Instance ? Colors.AntiqueWhite : Colors.Black)
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(this.disposables);
@@ -47,25 +47,25 @@ namespace Slide.ViewModels
 
         private void SetFilenameComparer()
         {
-            if (this.selectedDirectory.Value is DirectoryModel selectedDirectory && selectedDirectory.DirectoryInfo.Value is DirectoryInfo selectedDirectoryInfo)
+            if (this.selectedItemModel.SelectedDirectory is not null && this.SelectedFileComparer.Value != FilenameComparer.Instance)
             {
-                this.selectedFileComparer.FileComparer.Value = FilenameComparer.Instance;
+                this.selectedItemModel.SelectedDirectory.FileComparer.Value = FilenameComparer.Instance;
             }
         }
 
         private void SetLastWriteTimeComparer()
         {
-            if (this.selectedDirectory.Value is DirectoryModel selectedDirectory && selectedDirectory.DirectoryInfo.Value is DirectoryInfo selectedDirectoryInfo)
+            if (this.selectedItemModel.SelectedDirectory is not null && this.SelectedFileComparer.Value != LastWriteTimeComparer.Instance)
             {
-                this.selectedFileComparer.FileComparer.Value = LastWriteTimeComparer.Instance;
+                this.selectedItemModel.SelectedDirectory.FileComparer.Value = LastWriteTimeComparer.Instance;
             }
         }
 
         private void SetCreationTimeComparer()
         {
-            if (this.selectedDirectory.Value is DirectoryModel selectedDirectory && selectedDirectory.DirectoryInfo.Value is DirectoryInfo selectedDirectoryInfo)
+            if (this.selectedItemModel.SelectedDirectory is not null && this.SelectedFileComparer.Value != CreationTimeComparer.Instance)
             {
-                this.selectedFileComparer.FileComparer.Value = CreationTimeComparer.Instance;
+                this.selectedItemModel.SelectedDirectory.FileComparer.Value = CreationTimeComparer.Instance;
             }
         }
 
