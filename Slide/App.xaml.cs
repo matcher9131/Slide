@@ -1,6 +1,7 @@
 ﻿using Prism.Ioc;
 using Prism.Unity;
 using Slide.Models;
+using Slide.Models.Comparer;
 using Slide.Repositories;
 using System;
 using System.Collections.Generic;

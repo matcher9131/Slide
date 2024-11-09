@@ -19,7 +19,7 @@
             </ContextMenu>
         </TreeView.Resources>
         <TreeView.ItemTemplate>
-            <HierarchicalDataTemplate DataType="{x:Type vm:ExplorerTreeViewItemViewModel}" ItemsSource="{Binding Children}">
+            <HierarchicalDataTemplate DataType="{x:Type vm:ExplorerTreeViewItemViewModel}" ItemsSource="{Binding ChildrenView}">
                 <StackPanel Orientation="Horizontal">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
@@ -32,7 +32,7 @@
         </TreeView.ItemTemplate>
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="SelectedItemChanged">
-                <prism:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" TriggerParameterPath="NewValue" />
+                <prism:InvokeCommandAction Command="{Binding SelectedItemChangedCommand}" />
             </i:EventTrigger>
         </i:Interaction.Triggers>
     </TreeView>

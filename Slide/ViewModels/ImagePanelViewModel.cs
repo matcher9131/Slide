@@ -31,7 +31,7 @@ namespace Slide.ViewModels
                 {
                     try
                     {
-                        return LoadImage(selectedFile.FullName);
+                        return LoadImage(selectedFile.FullName.Value);
                     }
                     catch (IOException)
                     {
@@ -44,7 +44,7 @@ namespace Slide.ViewModels
 #endif
                         try
                         {
-                            return (BitmapSource?)LoadImage2(selectedFile.FullName);
+                            return (BitmapSource?)LoadImage2(selectedFile.FullName.Value);
                         }
                         catch (Exception innerEx)
                         {

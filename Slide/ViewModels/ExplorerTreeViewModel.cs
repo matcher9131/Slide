@@ -5,6 +5,7 @@ using Slide.Models;
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows;
 
 namespace Slide.ViewModels
 {
@@ -12,14 +13,14 @@ namespace Slide.ViewModels
     {
         private readonly SelectedItemModel selectedItemModel;
 
-        public ReactiveCommand<object> SelectedItemChangedCommand { get; }
+        public ReactiveCommand<RoutedPropertyChangedEventArgs<object>> SelectedItemChangedCommand { get; }
 
         public ReactiveCollection<ExplorerTreeViewItemViewModel> Children { get; }
 
         public ExplorerTreeViewModel(SelectedItemModel selectedItemModel)
         {
             this.selectedItemModel = selectedItemModel;
-            this.SelectedItemChangedCommand = new ReactiveCommand<object>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
+            this.SelectedItemChangedCommand = new ReactiveCommand<RoutedPropertyChangedEventArgs<object>>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
             this.Children = new ReactiveCollection<ExplorerTreeViewItemViewModel>().AddTo(this.disposables);
 
             var directories = DriveInfo.GetDrives().Select(drive => drive.RootDirectory);
@@ -29,12 +30,13 @@ namespace Slide.ViewModels
             }
         }
 
-        private void OnSelectedItemChanged(object e)
+        private void OnSelectedItemChanged(RoutedPropertyChangedEventArgs<object> e)
         {
-            if (e is ExplorerTreeViewItemViewModel vm)
+            if (e.NewValue is ExplorerTreeViewItemViewModel vm)
             {
                 this.selectedItemModel.SelectedFile.Value = null;
-                this.selectedItemModel.SelectedDirectory.Value = vm.DirectoryInfo;
+                this.selectedItemModel.SelectedDirectory = vm.DirectoryModel;
+                e.Handled = true;
             }
         }
 

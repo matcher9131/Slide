@@ -13,24 +13,34 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <ListBox
         HorizontalContentAlignment="Stretch"
-        ItemsSource="{Binding Items}"
+        ItemsSource="{Binding ItemsView}"
         SelectionMode="Single"
+        SelectedIndex="{Binding SelectedIndex.Value}"
         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
         KeyboardNavigation.DirectionalNavigation="Cycle"
+        VirtualizingPanel.IsVirtualizing="True"
     >
         <ListBox.Resources>
             <ContextMenu x:Key="listBoxContextMenu">
                 <MenuItem Header="エクスプローラーでフォルダを開く(_O)" Command="{Binding OpenExplorerCommand}"/>
             </ContextMenu>
+            <!-- バインドエラーを無くすためのおまじない -->
+            <Style TargetType="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
         </ListBox.Resources>
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
-                <WrapPanel IsItemsHost="True" Orientation="Vertical" Background="DarkGray" />
+                <VirtualizingStackPanel IsItemsHost="True" Orientation="Vertical" Background="DarkGray" />
             </ItemsPanelTemplate>
         </ListBox.ItemsPanel>
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
-                <Setter Property="IsSelected" Value="{Binding IsSelected.Value, Mode=OneWay}" />
+                <!--<Setter Property="IsSelected" Value="{Binding IsSelected.Value, Mode=OneWay}" />-->
+                <!-- バインドエラーを無くすためのおまじない -->
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
         </ListBox.ItemContainerStyle>
         <ListBox.ItemTemplate>

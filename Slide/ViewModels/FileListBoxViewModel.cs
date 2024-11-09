@@ -2,35 +2,35 @@
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Reactive.Bindings.Helpers;
 using Slide.Behavior;
 using Slide.Models;
+using Slide.Models.Comparer;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
-using Windows.ApplicationModel.VoiceCommands;
+using System.Windows.Data;
 
 namespace Slide.ViewModels
 {
     public class FileListBoxViewModel : BindableBase, IDisposable
     {
-        private IEventAggregator eventAggregator;
+        private readonly IEventAggregator eventAggregator;
         private readonly SelectedItemModel selectedItemModel;
         private readonly SelectedFavoriteLevel favoriteLevel;
 
-        // ItemsをクリアするためのSubject
-        private readonly Subject<Unit> clearSubject = new();
+        private string? currentSelectedDirectoryPath = null;
 
         public ReactiveCommand<SelectionChangedEventArgs> SelectedItemChangedCommand { get; }
 
-        public ReadOnlyReactiveCollection<FileListBoxItemViewModel> Items { get; }
+        // ReactiveCollectionでClearすると最初の要素で不都合が生じるため、ObservableCollectionで手続き的に処理
+        public ObservableCollection<FileListBoxItemViewModel> Items { get; private set; } = [];
+
+        public ListCollectionView ItemsView { get; private set; }
+
+        public ReactivePropertySlim<int> SelectedIndex { get; }
 
         public FileListBoxViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel)
         {
@@ -38,78 +38,74 @@ namespace Slide.ViewModels
             this.eventAggregator.GetEvent<ClickPositionEvent>().Subscribe(this.HandleClickPositionEvent).AddTo(this.disposables);
             this.selectedItemModel = selectedItemModel;
             this.favoriteLevel = favoriteLevel;
+            this.ItemsView = new ListCollectionView(this.Items) { IsLiveFiltering = true, IsLiveSorting = true };
+            this.SelectedIndex = new ReactivePropertySlim<int>(-1).AddTo(this.disposables);
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
-            this.Items = Observable.CombineLatest(
-                this.selectedItemModel.SelectedDirectory,
+            Observable.CombineLatest(
+                this.selectedItemModel.SelectedDirectoryAndComparer,
                 this.favoriteLevel.Level,
                 Tuple.Create
-            ).Do(_ => this.clearSubject.OnNext(Unit.Default)).SelectMany(tuple =>
+            ).Subscribe(tuple =>
+            {
+                var ((selectedDirectoryInfo, fileComparer), favoriteLevel) = tuple;
+                this.SetItems(selectedDirectoryInfo, fileComparer, favoriteLevel);
+            }).AddTo(this.disposables);
+        }
+
+        private void SetItems(DirectoryInfo? directoryInfo, FileComparerBase fileComparer, int favoriteLevel)
+        {
+            if (directoryInfo?.FullName != this.currentSelectedDirectoryPath)
+            {
+                this.currentSelectedDirectoryPath = directoryInfo?.FullName;
+                this.Items.Clear();
+                if (directoryInfo is not null)
                 {
-                    var (selectedDirectory, favoriteLevel) = tuple;
-                    if (selectedDirectory == null) return Enumerable.Empty<FileListBoxItemViewModel>();
                     try
                     {
-                        return selectedDirectory.EnumerateFiles()
-                        .AsParallel()
-                        .AsOrdered()
-                        .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
-                        .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
-                        .Where(vm => vm.FavoriteLevel.Value >= favoriteLevel)
-                        .OrderBy(vm => vm.FileInfo.Name, new FilenameComparer());
+                        this.Items.AddRange(directoryInfo.EnumerateFiles()
+                            .AsParallel()
+                            .AsOrdered()
+                            .Where(fileInfo => Const.Extensions.Contains(fileInfo.Extension.ToLower()))
+                            .Select(fileInfo => new FileListBoxItemViewModel(FileModel.Create(fileInfo)))
+                        );
                     }
                     catch (IOException)
                     {
-                        return Enumerable.Empty<FileListBoxItemViewModel>();
+                        // Do nothing
                     }
                 }
-            ).ToReadOnlyReactiveCollection(this.clearSubject);
+            }
+            this.ItemsView.CustomSort = new FileListBoxItemViewModelComparer(fileComparer);
+            this.ItemsView.Filter = vm => ((vm as FileListBoxItemViewModel)?.FavoriteLevel?.Value ?? -1) >= favoriteLevel;
         }
 
         private void OnSelectedItemChanged(SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0 && e.AddedItems[0] is FileListBoxItemViewModel first)
             {
-                this.selectedItemModel.SelectedFile.Value = first.FileInfo;
-                first.IsSelected.Value = true;
-            }
-
-            foreach (var item in e.RemovedItems)
-            {
-                if (item is FileListBoxItemViewModel vm)
-                {
-                    vm.IsSelected.Value = false;
-                }
+                this.selectedItemModel.SelectedFile.Value = first.FileModel;
             }
         }
 
         private void HandleClickPositionEvent(ClickPosition clickPosition)
         {
             if (clickPosition == ClickPosition.Middle) return;
-            var selectedFileListBoxItemViewModel = this.Items.FirstOrDefault(item => item.IsSelected.Value);
-            if (selectedFileListBoxItemViewModel != null)
+            if (this.SelectedIndex.Value > -1)
             {
-                // 選択状態のItemがあるときは、そのItemの選択状態を解除してその次or前のItemを選択状態にする
-                var currentIndex = this.Items.IndexOf(selectedFileListBoxItemViewModel);
                 var di = clickPosition switch
                 {
                     ClickPosition.LeftQuarter => -1,
                     ClickPosition.RightQuarter => 1,
                     _ => 0
                 };
-                var newIndex = (currentIndex + this.Items.Count + di) % this.Items.Count;
-                this.Items[newIndex].IsSelected.Value = true;
-                if (selectedFileListBoxItemViewModel != this.Items[newIndex])
-                {
-                    selectedFileListBoxItemViewModel.IsSelected.Value = false;
-                }
+                int count = this.ItemsView.Count;
+                if (count < 0) throw new InvalidOperationException("count is negative");
+                int newIndex = (this.SelectedIndex.Value + count + di) % count;
+                this.SelectedIndex.Value = newIndex;
             }
-            else
+            else if (!this.ItemsView.IsEmpty)
             {
-                // 選択状態のItemが無いときは最初のItemを選択状態にする
-                if (this.Items.FirstOrDefault() is FileListBoxItemViewModel vm)
-                {
-                    vm.IsSelected.Value = true;
-                }
+                this.SelectedIndex.Value = 0;
             }
         }
 

@@ -24,7 +24,10 @@ namespace Slide
         {
             InitializeComponent();
 
+#if DEBUG
+#else
             this.Loaded += (sender, e) => { this.WindowState = WindowState.Maximized; };
+#endif
         }
     }
 }
