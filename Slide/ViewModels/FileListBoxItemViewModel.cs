@@ -16,8 +16,6 @@ namespace Slide.ViewModels
 
         public ReadOnlyReactivePropertySlim<string> DisplayText { get; }
 
-        public ReactivePropertySlim<bool> IsSelected { get; }
-
         public ReadOnlyReactivePropertySlim<int> FavoriteLevel { get; }
 
         public ReactiveCommand IncrementFavoriteLevelCommand { get; }
@@ -27,7 +25,6 @@ namespace Slide.ViewModels
         {
             this.FileModel = fileModel;
             this.DisplayText = this.FileModel.Name.Select(x => x).ToReadOnlyReactivePropertySlim<string>().AddTo(this.disposables);
-            this.IsSelected = new ReactivePropertySlim<bool>().AddTo(this.disposables);
             this.FavoriteLevel = this.FileModel.FavoriteLevel.Select(x => x).ToReadOnlyReactivePropertySlim().AddTo(this.disposables);
             this.IncrementFavoriteLevelCommand = new ReactiveCommand().WithSubscribe(this.IncrementFavoriteLevel).AddTo(this.disposables);
             this.OpenExplorerCommand = new ReactiveCommand().WithSubscribe(this.OpenExplorer).AddTo(this.disposables);

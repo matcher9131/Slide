@@ -30,6 +30,8 @@ namespace Slide.ViewModels
 
         public ListCollectionView ItemsView { get; private set; }
 
+        public ReactivePropertySlim<int> SelectedIndex { get; }
+
         public FileListBoxViewModel(IEventAggregator eventAggregator, SelectedItemModel selectedItemModel, SelectedFavoriteLevel favoriteLevel)
         {
             this.eventAggregator = eventAggregator;
@@ -37,6 +39,7 @@ namespace Slide.ViewModels
             this.selectedItemModel = selectedItemModel;
             this.favoriteLevel = favoriteLevel;
             this.ItemsView = new ListCollectionView(this.Items) { IsLiveFiltering = true, IsLiveSorting = true };
+            this.SelectedIndex = new ReactivePropertySlim<int>(-1).AddTo(this.disposables);
             this.SelectedItemChangedCommand = new ReactiveCommand<SelectionChangedEventArgs>().WithSubscribe(this.OnSelectedItemChanged).AddTo(this.disposables);
             Observable.CombineLatest(
                 this.selectedItemModel.SelectedDirectoryAndComparer,
@@ -81,46 +84,28 @@ namespace Slide.ViewModels
             if (e.AddedItems.Count > 0 && e.AddedItems[0] is FileListBoxItemViewModel first)
             {
                 this.selectedItemModel.SelectedFile.Value = first.FileModel;
-                first.IsSelected.Value = true;
-            }
-
-            foreach (var item in e.RemovedItems)
-            {
-                if (item is FileListBoxItemViewModel vm)
-                {
-                    vm.IsSelected.Value = false;
-                }
             }
         }
 
         private void HandleClickPositionEvent(ClickPosition clickPosition)
         {
             if (clickPosition == ClickPosition.Middle) return;
-            var selectedFileListBoxItemViewModel = this.Items.FirstOrDefault(item => item.IsSelected.Value);
-            if (selectedFileListBoxItemViewModel != null)
+            if (this.SelectedIndex.Value > -1)
             {
-                // 選択状態のItemがあるときは、そのItemの選択状態を解除してその次or前のItemを選択状態にする
-                var currentIndex = this.Items.IndexOf(selectedFileListBoxItemViewModel);
                 var di = clickPosition switch
                 {
                     ClickPosition.LeftQuarter => -1,
                     ClickPosition.RightQuarter => 1,
                     _ => 0
                 };
-                var newIndex = (currentIndex + this.Items.Count + di) % this.Items.Count;
-                this.Items[newIndex].IsSelected.Value = true;
-                if (selectedFileListBoxItemViewModel != this.Items[newIndex])
-                {
-                    selectedFileListBoxItemViewModel.IsSelected.Value = false;
-                }
+                int count = this.ItemsView.Count;
+                if (count < 0) throw new InvalidOperationException("count is negative");
+                int newIndex = (this.SelectedIndex.Value + count + di) % count;
+                this.SelectedIndex.Value = newIndex;
             }
-            else
+            else if (!this.ItemsView.IsEmpty)
             {
-                // 選択状態のItemが無いときは最初のItemを選択状態にする
-                if (this.Items.FirstOrDefault() is FileListBoxItemViewModel vm)
-                {
-                    vm.IsSelected.Value = true;
-                }
+                this.SelectedIndex.Value = 0;
             }
         }
 
