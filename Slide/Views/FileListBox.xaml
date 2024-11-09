@@ -18,6 +18,7 @@
         SelectedIndex="{Binding SelectedIndex.Value}"
         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
         KeyboardNavigation.DirectionalNavigation="Cycle"
+        VirtualizingPanel.IsVirtualizing="True"
     >
         <ListBox.Resources>
             <ContextMenu x:Key="listBoxContextMenu">
@@ -31,7 +32,7 @@
         </ListBox.Resources>
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
-                <WrapPanel IsItemsHost="True" Orientation="Vertical" Background="DarkGray" />
+                <VirtualizingStackPanel IsItemsHost="True" Orientation="Vertical" Background="DarkGray" />
             </ItemsPanelTemplate>
         </ListBox.ItemsPanel>
         <ListBox.ItemContainerStyle>
